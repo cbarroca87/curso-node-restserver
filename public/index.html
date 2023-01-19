@@ -2,14 +2,56 @@
 <html lang="en">
 
 <head>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso denegado</title>
+    <title>Google Sign-in</title>
 </head>
 
 <body>
-    <h1>Acceso denegado</h1>
+    <h1>Google Sign-in</h1>
+    <div id="g_id_onload" data-client_id="113081718615-no8kakub8eqq22mi3hg1casaophpj7jv.apps.googleusercontent.com"
+        data-auto_prompt="false" data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with"
+        data-shape="rectangular" data-logo_alignment="left">
+    </div>
+
+    <button id="google_signout">
+        Sign-out
+    </button>
+    <script>
+        function handleCredentialResponse(response) {            
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var body = JSON.stringify({ "idToken":  response.credential});
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: body,                
+            };
+
+            fetch("http://localhost:8080/api/auth/google", requestOptions)
+                .then(response => response.json())
+                .then(result => {
+                    localStorage.setItem('email', result.usuario.correo);
+                })
+                .catch(error => console.log('error', error));
+        }
+
+        const button = document.getElementById('google_signout')
+        button.onclick = () =>{
+            console.log(google.accounts.id);
+            google.accounts.id.disableAutoSelect();
+            google.accounts.id.revoke(localStorage.getItem('email'), done =>{
+                localStorage.clear();
+                location.reload();
+            });
+        }
+    </script>
 </body>
 
 </html>

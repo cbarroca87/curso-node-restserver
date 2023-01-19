@@ -3,9 +3,9 @@ const Usuario = require('../models/usuario')
 const bcryptjs = require('bcryptjs')
 
 const usuariosGet = async (req = request, res = response) => {
-    const query = {estado: true};
+    const query = { estado: true };
     const { limite = 5, desde = 0 } = req.query;
-    
+
     /*const usuarios = await Usuario.find(query)
         .limit(Number(limite))
         .skip(Number(desde));
@@ -16,11 +16,11 @@ const usuariosGet = async (req = request, res = response) => {
     const [total, usuarios] = await Promise.all([
         Usuario.countDocuments(query),
         Usuario.find(query)
-        .limit(Number(limite))
-        .skip(Number(desde))
+            .limit(Number(limite))
+            .skip(Number(desde))
     ])
-    
-    
+
+
     res.json({
         total,
         usuarios
@@ -28,6 +28,7 @@ const usuariosGet = async (req = request, res = response) => {
 }
 
 const usuariosPost = async (req, res = response) => {
+    console.log(req.body);
     const { nombre, correo, password, rol } = req.body;
     const usuario = new Usuario({ nombre, correo, password, rol });
     const salt = bcryptjs.genSaltSync();
@@ -57,11 +58,14 @@ const usuariosPut = async (req, res = response) => {
     });
 }
 
-const usuariosDelete = async(req, res = response) => {
-    const {id} = req.params;
-    const usuario = await Usuario.findByIdAndUpdate(id, {estado: false});
+const usuariosDelete = async (req, res = response) => {
+    const { id } = req.params;
+    const uid = req.uid;
+    const usuario = await Usuario.findByIdAndUpdate(id, { estado: false });
+    const usuarioAutenticado = req.usuario;
     res.json({
-        usuario
+        usuario,
+        usuarioAutenticado
     });
 }
 
